@@ -13,6 +13,7 @@
     },
     "require-dev": {
         "symfony/dotenv": "*",
+        "symfony/maker-bundle": "^1.8",
         "symfony/phpunit-bridge": "*",
         "symfony/web-server-bundle": "*"
     },
