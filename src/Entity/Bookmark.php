@@ -2,8 +2,14 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\BookmarkRepository")
+ */
 class Bookmark
 {
+
   /**
    * @ORM\Column(type="string", length=255)
    */
@@ -39,6 +45,17 @@ class Bookmark
     $this->url = $args['url'];
   }
 
+  public function getId() : ? int
+  {
+    return $this->id;
+
+  }
+
+  public function getJSON()
+  {
+    return json_encode($this->getProperties());
+  }
+
   public function getProperties()
   {
     return array(
@@ -47,11 +64,6 @@ class Bookmark
       'title' => $this->title,
       'url' => $this->url,
     );
-  }
-
-  public function getJSON()
-  {
-    return json_encode($this->getProperties());
   }
 
 }
