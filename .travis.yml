@@ -5,3 +5,5 @@ jobs:
   include:
     - stage: install
       script: php composer.phar install
+    - stage: test
+      script: php ./bin/phpunit
