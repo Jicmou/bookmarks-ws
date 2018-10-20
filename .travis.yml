@@ -1,9 +1,7 @@
 language: php
 php:
   - '7.1'
-jobs:
-  include:
-    - stage: install
-      script: php composer.phar install
-    - stage: test
-      script: php ./bin/phpunit
+install:
+  - php composer.phar install
+script:
+  - php ./bin/phpunit
