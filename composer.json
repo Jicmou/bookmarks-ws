@@ -12,6 +12,7 @@
     },
     "require-dev": {
         "symfony/dotenv": "*",
+        "symfony/phpunit-bridge": "*",
         "symfony/web-server-bundle": "*"
     },
     "config": {
