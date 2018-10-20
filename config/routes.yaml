@@ -1,3 +1,10 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+
+get_bookmark_list:
+  path: /v1/bookmarks
+  controller: App\Controller\BookmarkController::getList
+  methods: [GET]
+  defaults:
+    _format: json
