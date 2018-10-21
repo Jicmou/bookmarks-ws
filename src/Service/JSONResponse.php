@@ -36,4 +36,24 @@ class JSONResponse
     ));
     return $this->getJSONResponse($errorBody, $statusCode);
   }
+
+  public function getRequestErrorResponse(string $message)
+  {
+    $statusCode = 400;
+    $errorBody = json_encode(array(
+      'code' => $statusCode,
+      'message' => $message
+    ));
+    return $this->getJSONResponse($errorBody, $statusCode);
+  }
+
+  public function getNotFoundErrorResponse()
+  {
+    $statusCode = 404;
+    $errorBody = json_encode(array(
+      'code' => $statusCode,
+      'message' => 'Ressource not found'
+    ));
+    return $this->getJSONResponse($errorBody, $statusCode);
+  }
 }

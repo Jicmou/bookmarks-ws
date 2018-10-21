@@ -66,4 +66,49 @@ class JSONResponseTest extends TestCase
       'GIVEN message and 500 status code SHOULD be in the Response content body'
     );
   }
+
+  public function testGetRequestErrorResponse()
+  {
+    $message = 'foo';
+    $testedObject = new JSONResponse();
+    $expectedResult = json_encode(
+      array(
+        'code' => 400,
+        'message' => $message
+      )
+    );
+    $actualResult = $testedObject->getRequestErrorResponse($message);
+    $this->assertEquals(
+      400,
+      $actualResult->getStatusCode(),
+      'Status code SHOULD be 400'
+    );
+    $this->assertEquals(
+      $expectedResult,
+      $actualResult->getContent(),
+      'GIVEN message and 400 status code SHOULD be in the Response content body'
+    );
+  }
+
+  public function testGetNotFoundErrorResponse()
+  {
+    $testedObject = new JSONResponse();
+    $expectedResult = json_encode(
+      array(
+        'code' => 404,
+        'message' => 'Ressource not found'
+      )
+    );
+    $actualResult = $testedObject->getNotFoundErrorResponse();
+    $this->assertEquals(
+      404,
+      $actualResult->getStatusCode(),
+      'Status code SHOULD be 404'
+    );
+    $this->assertEquals(
+      $expectedResult,
+      $actualResult->getContent(),
+      'GIVEN message and 404 status code SHOULD be in the Response content body'
+    );
+  }
 }
