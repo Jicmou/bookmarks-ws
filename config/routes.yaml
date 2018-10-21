@@ -8,3 +8,10 @@ get_bookmark_list:
   methods: [GET]
   defaults:
     _format: json
+
+create_bookmark:
+  path: /v1/bookmarks
+  controller: App\Controller\BookmarkController::create
+  methods: [POST]
+  defaults:
+    _format: json
