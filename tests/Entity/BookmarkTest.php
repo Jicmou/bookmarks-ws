@@ -9,7 +9,6 @@ class BookmarkTest extends TestCase
 {
 
   private $mockProperties = array(
-    'addedDate' => '2018-11-10 11:00',
     'authorName' => 'foo',
     'duration' => 456,
     'height' => 400,
@@ -29,7 +28,13 @@ class BookmarkTest extends TestCase
   public function testCreate()
   {
     $bookmark = $this->createMockBookmark($this->mockProperties);
-    $this->assertEquals($this->mockProperties, $bookmark->getProperties());
+    $this->assertEquals($this->mockProperties['authorName'], $bookmark->getProperties()['authorName'], 'SHOULD create Object with right authorName');
+    $this->assertEquals($this->mockProperties['duration'], $bookmark->getProperties()['duration'], 'SHOULD create Object with right duration');
+    $this->assertEquals($this->mockProperties['height'], $bookmark->getProperties()['height'], 'SHOULD create Object with right height');
+    $this->assertEquals($this->mockProperties['title'], $bookmark->getProperties()['title'], 'SHOULD create Object with right title');
+    $this->assertEquals($this->mockProperties['type'], $bookmark->getProperties()['type'], 'SHOULD create Object with right type');
+    $this->assertEquals($this->mockProperties['url'], $bookmark->getProperties()['url'], 'SHOULD create Object with right url');
+    $this->assertEquals($this->mockProperties['width'], $bookmark->getProperties()['width'], 'SHOULD create Object with right width');
   }
 
 }

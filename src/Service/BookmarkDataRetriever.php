@@ -30,6 +30,34 @@ class BookmarkDataRetriever
       : $this->flickrApiUrl . '?format=json&url=' . $linkUrl;
   }
 
+  public function getVimeoBookmarkDataFromResponse($response)
+  {
+    return array(
+      'authorName' => $response->author_name,
+      'duration' => $response->duration,
+      'height' => $response->height,
+      'title' => $response->title,
+      'type' => $response->type,
+      'url' => $response->provider_url . substr($response->uri, 1),
+      'width' => $response->width,
+    );
+
+  }
+
+  public function getFlickrBookmarkDataFromResponse($response)
+  {
+    return array(
+      'authorName' => $response->author_name,
+      'duration' => null,
+      'height' => $response->height,
+      'title' => $response->title,
+      'type' => $response->type,
+      'url' => $response->web_page,
+      'width' => $response->width,
+    );
+
+  }
+
   public function retrieveLinkData(string $url)
   {
     $curl = curl_init();
@@ -59,6 +87,17 @@ class BookmarkDataRetriever
     curl_close($curl);
 
     return json_decode($response);
+  }
+
+  public function retrieveBookmarkDataFromUrl(string $url)
+  {
+    return $this->isVimeo($url)
+      ? $this->getVimeoBookmarkDataFromResponse(
+      $this->retrieveLinkData(($url))
+    )
+      : $this->getFlickrBookmarkDataFromResponse(
+      $this->retrieveLinkData(($url))
+    );
   }
 }
 

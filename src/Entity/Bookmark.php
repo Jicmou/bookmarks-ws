@@ -11,9 +11,9 @@ class Bookmark
 {
 
   /**
-   * @ORM\Column(type="string", length=255)
+   * @ORM\Column(type="datetime")
    */
-  private $addedDate;
+  private $creationDate;
 
   /**
    * @ORM\Column(type="string", length=255)
@@ -59,7 +59,6 @@ class Bookmark
 
   public function create(array $args)
   {
-    $this->addedDate = $args['addedDate'];
     $this->authorName = $args['authorName'];
     $this->duration = $args['duration'];
     $this->height = $args['height'];
@@ -67,6 +66,7 @@ class Bookmark
     $this->type = $args['type'];
     $this->url = $args['url'];
     $this->width = $args['width'];
+    $this->creationDate = new \DateTime('now');
   }
 
   public function getId() : ? int
@@ -78,10 +78,11 @@ class Bookmark
   public function getProperties()
   {
     return array(
-      'addedDate' => $this->addedDate,
+      'creationDate' => $this->creationDate->format('c'),
       'authorName' => $this->authorName,
       'duration' => $this->duration,
       'height' => $this->height,
+      'id' => $this->id,
       'title' => $this->title,
       'type' => $this->type,
       'url' => $this->url,

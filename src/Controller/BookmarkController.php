@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Psr\Log\LoggerInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 use App\Entity\Bookmark;
 use App\Service\JSONResponse;
@@ -37,6 +38,13 @@ class BookmarkController extends AbstractController
       ->findAll();
   }
 
+  private function saveBookmarkWithORM(EntityManagerInterface $entityManager, Bookmark $bookmark)
+  {
+    $entityManager->persist($bookmark);
+    $entityManager->flush();
+    return $bookmark;
+  }
+
   private function getUrlFromRequest(Request $request)
   {
     return json_decode($request->getContent())->url;
@@ -52,13 +60,22 @@ class BookmarkController extends AbstractController
     return $this->isUrlValid($this->getUrlFromRequest($request));
   }
 
+  private function createBookmark($args)
+  {
+    $bookmark = new Bookmark;
+    $bookmark->create($args);
+    return $bookmark;
+  }
+
   public function getList()
   {
     try {
       return $this->jsonResponse->getSuccessResponse(
         json_encode(
           array(
-            'bookmarkList' => $this->getBookmarkListFromORM()
+            'bookmarkList' => array_map(function (Bookmark $bookmark) {
+              return $bookmark->getProperties();
+            }, $this->getBookmarkListFromORM())
           )
         )
       );
@@ -74,13 +91,17 @@ class BookmarkController extends AbstractController
       if (!$this->isCreateRequestValid($request)) {
         return $this->jsonResponse->getRequestErrorResponse('invalid url');
       }
-
+      $bookmarkData = $this->bookmarkDataRetriever->retrieveBookmarkDataFromUrl(
+        $this->getUrlFromRequest($request)
+      );
+      $newBookmark = $this->saveBookmarkWithORM(
+        $this->getDoctrine()->getManager(),
+        $this->createBookmark($bookmarkData)
+      );
       return $this->jsonResponse->getSuccessResponse(
         json_encode(
           array(
-            'bookmark' => $this->bookmarkDataRetriever->retrieveLinkData(
-              $this->getUrlFromRequest($request)
-            )
+            'bookmark' => $newBookmark->getProperties()
           )
         )
       );
