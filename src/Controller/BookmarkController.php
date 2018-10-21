@@ -5,32 +5,30 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 use App\Entity\Bookmark;
+use App\Service\JSONResponse;
+use App\Service\BookmarkDataRetriever;
 
 class BookmarkController extends AbstractController
 {
 
-  private function getJSONResponse($body, $status)
-  {
-    $response = new Response($body, $status);
-    $response->headers->set('Content-Type', 'application/json');
-    return $response;
-  }
+  private $jsonResponse;
+  private $bookmarkDataRetriever;
+  private $logger;
 
-  private function getSuccessResponse(string $body)
-  {
-    return $this->getJSONResponse($body, 200);
-  }
+  private $validUrl = '/^(http(s)?:\/\/(www.)?(vimeo|flickr).com\/)/';
 
-  private function getInternalErrorResponse(Exception $e)
-  {
-    $statusCode = 500;
-    $errorBody = json_encode(array(
-      'code' => $statusCode,
-      'message' => $e->getMessage()
-    ));
-    return $this->getJSONResponse($errorBody, $statusCode);
+  public function __construct(
+    JSONResponse $jsonResponse,
+    BookmarkDataRetriever $bookmarkDataRetriever,
+    LoggerInterface $logger
+  ) {
+    $this->jsonResponse = $jsonResponse;
+    $this->bookmarkDataRetriever = $bookmarkDataRetriever;
+    $this->logger = $logger;
   }
 
   private function getBookmarkListFromORM()
@@ -40,16 +38,78 @@ class BookmarkController extends AbstractController
       ->findAll();
   }
 
+  private function saveBookmarkWithORM(EntityManagerInterface $entityManager, Bookmark $bookmark)
+  {
+    $entityManager->persist($bookmark);
+    $entityManager->flush();
+    return $bookmark;
+  }
+
+  private function getUrlFromRequest(Request $request)
+  {
+    return json_decode($request->getContent())->url;
+  }
+
+  private function isUrlValid(string $url)
+  {
+    return preg_match($this->validUrl, $url);
+  }
+
+  private function isCreateRequestValid(Request $request)
+  {
+    return $this->isUrlValid($this->getUrlFromRequest($request));
+  }
+
+  private function createBookmark($args)
+  {
+    $bookmark = new Bookmark;
+    $bookmark->create($args);
+    return $bookmark;
+  }
+
   public function getList()
   {
     try {
-      return $this->getSuccessResponse(
+      return $this->jsonResponse->getSuccessResponse(
         json_encode(
-          $this->getBookmarkListFromORM()
+          array(
+            'bookmarkList' => array_map(function (Bookmark $bookmark) {
+              return $bookmark->getProperties();
+            }, $this->getBookmarkListFromORM())
+          )
         )
       );
     } catch (Exception $e) {
-      return $this->getInternalErrorResponse($e);
+      return $this->jsonResponse->getInternalErrorResponse($e);
     }
+  }
+
+  public function create(Request $request)
+  {
+    try {
+
+      if (!$this->isCreateRequestValid($request)) {
+        return $this->jsonResponse->getRequestErrorResponse('invalid url');
+      }
+      $bookmarkData = $this->bookmarkDataRetriever->retrieveBookmarkDataFromUrl(
+        $this->getUrlFromRequest($request)
+      );
+      $newBookmark = $this->saveBookmarkWithORM(
+        $this->getDoctrine()->getManager(),
+        $this->createBookmark($bookmarkData)
+      );
+      return $this->jsonResponse->getSuccessResponse(
+        json_encode(
+          array(
+            'bookmark' => $newBookmark->getProperties()
+          )
+        )
+      );
+
+    } catch (Exception $e) {
+      $logger->error('Error in BookmarkController::create: ' . $e->getMessage());
+      return $this->jsonResponse->getInternalErrorResponse($e);
+    }
+
   }
 }
