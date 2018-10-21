@@ -7,30 +7,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use App\Entity\Bookmark;
+use App\Service\JSONResponse;
 
 class BookmarkController extends AbstractController
 {
 
-  private function getJSONResponse($body, $status)
-  {
-    $response = new Response($body, $status);
-    $response->headers->set('Content-Type', 'application/json');
-    return $response;
-  }
+  private $jsonResponse;
 
-  private function getSuccessResponse(string $body)
+  public function __construct(JSONResponse $jsonResponse)
   {
-    return $this->getJSONResponse($body, 200);
-  }
-
-  private function getInternalErrorResponse(Exception $e)
-  {
-    $statusCode = 500;
-    $errorBody = json_encode(array(
-      'code' => $statusCode,
-      'message' => $e->getMessage()
-    ));
-    return $this->getJSONResponse($errorBody, $statusCode);
+    $this->jsonResponse = $jsonResponse;
   }
 
   private function getBookmarkListFromORM()
@@ -43,13 +29,15 @@ class BookmarkController extends AbstractController
   public function getList()
   {
     try {
-      return $this->getSuccessResponse(
+      return $this->jsonResponse->getSuccessResponse(
         json_encode(
-          $this->getBookmarkListFromORM()
+          array(
+            'bookmarkList' => $this->getBookmarkListFromORM()
+          )
         )
       );
     } catch (Exception $e) {
-      return $this->getInternalErrorResponse($e);
+      return $this->jsonResponse->getInternalErrorResponse($e);
     }
   }
 }
