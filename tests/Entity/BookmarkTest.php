@@ -11,8 +11,12 @@ class BookmarkTest extends TestCase
   private $mockProperties = array(
     'addedDate' => '2018-11-10 11:00',
     'authorName' => 'foo',
+    'duration' => 456,
+    'height' => 400,
     'title' => 'bar',
+    'type' => 'video',
     'url' => 'http://www.baz.qux',
+    'width' => 600,
   );
 
   private function createMockBookmark(array $args)
@@ -26,12 +30,6 @@ class BookmarkTest extends TestCase
   {
     $bookmark = $this->createMockBookmark($this->mockProperties);
     $this->assertEquals($this->mockProperties, $bookmark->getProperties());
-  }
-
-  public function testGetJSON()
-  {
-    $bookmark = $this->createMockBookmark($this->mockProperties);
-    $this->assertEquals(json_encode($this->mockProperties), $bookmark->getJSON());
   }
 
 }

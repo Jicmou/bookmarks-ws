@@ -21,6 +21,16 @@ class Bookmark
   private $authorName;
 
   /**
+   * @ORM\Column(type="integer", nullable=true)
+   */
+  private $duration;
+
+  /**
+   * @ORM\Column(type="integer")
+   */
+  private $height;
+
+  /**
    * @ORM\Id
    * @ORM\GeneratedValue
    * @ORM\Column(type="integer")
@@ -35,14 +45,28 @@ class Bookmark
   /**
    * @ORM\Column(type="string", length=255)
    */
+  private $type;
+
+  /**
+   * @ORM\Column(type="string", length=255)
+   */
   private $url;
+
+  /**
+   * @ORM\Column(type="integer")
+   */
+  private $width;
 
   public function create(array $args)
   {
     $this->addedDate = $args['addedDate'];
     $this->authorName = $args['authorName'];
+    $this->duration = $args['duration'];
+    $this->height = $args['height'];
     $this->title = $args['title'];
+    $this->type = $args['type'];
     $this->url = $args['url'];
+    $this->width = $args['width'];
   }
 
   public function getId() : ? int
@@ -51,18 +75,17 @@ class Bookmark
 
   }
 
-  public function getJSON()
-  {
-    return json_encode($this->getProperties());
-  }
-
   public function getProperties()
   {
     return array(
       'addedDate' => $this->addedDate,
       'authorName' => $this->authorName,
+      'duration' => $this->duration,
+      'height' => $this->height,
       'title' => $this->title,
+      'type' => $this->type,
       'url' => $this->url,
+      'width' => $this->width,
     );
   }
 
