@@ -18,11 +18,23 @@ class BookmarkDataRetriever
     $this->logger = $logger;
   }
 
+  public function isVimeo(string $url)
+  {
+    return (bool)preg_match('/vimeo/', $url);
+  }
+
+  public function getApiUrl(string $linkUrl)
+  {
+    return $this->isVimeo($linkUrl)
+      ? $this->vimeoApiUrl . '?url=' . $linkUrl
+      : $this->flickrApiUrl . '?format=json&url=' . $linkUrl;
+  }
+
   public function getLinkData(string $url)
   {
     $curl = curl_init();
     curl_setopt_array($curl, array(
-      CURLOPT_URL => $this->vimeoApiUrl . '?url=' . $url,
+      CURLOPT_URL => $this->getApiUrl($url),
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => "",
       CURLOPT_MAXREDIRS => 10,
@@ -46,11 +58,6 @@ class BookmarkDataRetriever
     $this->logger->error('info: ' . json_encode($info));
     curl_close($curl);
 
-    // if ($err) {
-    //   echo "cURL Error #:" . $err;
-    // } else {
-    //   echo $response;
-    // }
     return json_decode($response);
   }
 }
