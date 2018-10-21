@@ -30,7 +30,7 @@ class BookmarkDataRetriever
       : $this->flickrApiUrl . '?format=json&url=' . $linkUrl;
   }
 
-  public function getLinkData(string $url)
+  public function retrieveLinkData(string $url)
   {
     $curl = curl_init();
     curl_setopt_array($curl, array(

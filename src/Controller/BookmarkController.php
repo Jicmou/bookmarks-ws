@@ -37,9 +37,19 @@ class BookmarkController extends AbstractController
       ->findAll();
   }
 
+  private function getUrlFromRequest(Request $request)
+  {
+    return json_decode($request->getContent())->url;
+  }
+
   private function isUrlValid(string $url)
   {
     return preg_match($this->validUrl, $url);
+  }
+
+  private function isCreateRequestValid(Request $request)
+  {
+    return $this->isUrlValid($this->getUrlFromRequest($request));
   }
 
   public function getList()
@@ -60,18 +70,21 @@ class BookmarkController extends AbstractController
   public function create(Request $request)
   {
     try {
-      $url = json_decode($request->getContent())->url;
-      if (!$this->isUrlValid($url)) {
+
+      if (!$this->isCreateRequestValid($request)) {
         return $this->jsonResponse->getRequestErrorResponse('invalid url');
       }
-      $this->logger->info('BookmarkController url: ' . json_encode($url));
+
       return $this->jsonResponse->getSuccessResponse(
         json_encode(
           array(
-            'bookmark' => $this->bookmarkDataRetriever->getLinkData($url)
+            'bookmark' => $this->bookmarkDataRetriever->retrieveLinkData(
+              $this->getUrlFromRequest($request)
+            )
           )
         )
       );
+
     } catch (Exception $e) {
       $logger->error('Error in BookmarkController::create: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
