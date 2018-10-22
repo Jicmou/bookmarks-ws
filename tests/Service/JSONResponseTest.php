@@ -44,6 +44,21 @@ class JSONResponseTest extends TestCase
     );
   }
 
+  public function testGetNoContentResponse()
+  {
+    $testedObject = new JSONResponse();
+    $actualResult = $testedObject->getNoContentResponse();
+    $this->assertEmpty(
+      $actualResult->getContent(),
+      'SHOULD return an empty body'
+    );
+    $this->assertEquals(
+      204,
+      $actualResult->getStatusCode(),
+      'SHOULD return 204 status code'
+    );
+  }
+
   public function testGetInternalErrorResponse()
   {
     $message = 'foo';
