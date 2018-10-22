@@ -22,6 +22,13 @@ class JSONResponse
     return $this->response;
   }
 
+  public function getNoContentResponse()
+  {
+    $this->response->setStatusCode(204);
+    $this->response->headers->set('Content-Type', 'application/json');
+    return $this->response;
+  }
+
   public function getSuccessResponse(string $body)
   {
     return $this->getJSONResponse($body, 200);

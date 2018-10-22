@@ -2,15 +2,16 @@
 
 namespace App\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Psr\Log\LoggerInterface;
-use Doctrine\ORM\EntityManagerInterface;
 
 use App\Entity\Bookmark;
-use App\Service\JSONResponse;
+use App\Repository\BookmarkRepository;
 use App\Service\BookmarkDataRetriever;
+use App\Service\JSONResponse;
 
 class BookmarkController extends AbstractController
 {
@@ -31,11 +32,14 @@ class BookmarkController extends AbstractController
     $this->logger = $logger;
   }
 
-  private function getBookmarkListFromORM()
+  private function getBookmarkListFromORM(BookmarkRepository $bookmarkRepository)
   {
-    return $this->getDoctrine()
-      ->getRepository(Bookmark::class)
-      ->findAll();
+    return $bookmarkRepository->findAll();
+  }
+
+  private function getBookmarkByIdFromORM(BookmarkRepository $bookmarkRepository, $bookmarkId)
+  {
+    return $bookmarkRepository->find($bookmarkId);
   }
 
   private function saveBookmarkWithORM(EntityManagerInterface $entityManager, Bookmark $bookmark)
@@ -43,6 +47,19 @@ class BookmarkController extends AbstractController
     $entityManager->persist($bookmark);
     $entityManager->flush();
     return $bookmark;
+  }
+
+  private function deleteBookmarkWithORM(EntityManagerInterface $entityManager, Bookmark $bookmark)
+  {
+    $entityManager->remove($bookmark);
+    $entityManager->flush();
+    return $bookmark;
+  }
+
+  private function getBookmarkRepository()
+  {
+    return $this->getDoctrine()
+      ->getRepository(Bookmark::class);
   }
 
   private function getUrlFromRequest(Request $request)
@@ -75,7 +92,9 @@ class BookmarkController extends AbstractController
           array(
             'bookmarkList' => array_map(function (Bookmark $bookmark) {
               return $bookmark->getProperties();
-            }, $this->getBookmarkListFromORM())
+            }, $this->getBookmarkListFromORM(
+              $this->getBookmarkRepository()
+            ))
           )
         )
       );
@@ -110,6 +129,51 @@ class BookmarkController extends AbstractController
       $logger->error('Error in BookmarkController::create: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
     }
+  }
 
+  public function getById($bookmarkId)
+  {
+    try {
+      $bookmark = $this->getBookmarkByIdFromORM(
+        $this->getBookmarkRepository(),
+        $bookmarkId
+      );
+      if (!$bookmark) {
+        return $this->jsonResponse->getNotFoundErrorResponse();
+      }
+      return $this->jsonResponse->getSuccessResponse(
+        json_encode(
+          array(
+            'bookmark' => $bookmark->getProperties()
+          )
+        )
+      );
+
+    } catch (Exception $e) {
+      $logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
+      return $this->jsonResponse->getInternalErrorResponse($e);
+    }
+  }
+
+  public function delete($bookmarkId)
+  {
+    try {
+      $bookmark = $this->getBookmarkByIdFromORM(
+        $this->getBookmarkRepository(),
+        $bookmarkId
+      );
+      if (!$bookmark) {
+        return $this->jsonResponse->getNotFoundErrorResponse();
+      }
+      $this->deleteBookmarkWithORM(
+        $this->getDoctrine()->getManager(),
+        $bookmark
+      );
+      return $this->jsonResponse->getNoContentResponse();
+
+    } catch (Exception $e) {
+      $logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
+      return $this->jsonResponse->getInternalErrorResponse($e);
+    }
   }
 }
