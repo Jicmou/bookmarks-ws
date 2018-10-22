@@ -9,9 +9,23 @@ get_bookmark_list:
   defaults:
     _format: json
 
+get_bookmark_by_id:
+  path: /v1/bookmarks/{bookmarkId}
+  controller: App\Controller\BookmarkController::getById
+  methods: [GET]
+  defaults:
+    _format: json
+
 create_bookmark:
   path: /v1/bookmarks
   controller: App\Controller\BookmarkController::create
   methods: [POST]
+  defaults:
+    _format: json
+
+delete_bookmark:
+  path: /v1/bookmarks/{bookmarkId}
+  controller: App\Controller\BookmarkController::delete
+  methods: [DELETE]
   defaults:
     _format: json
