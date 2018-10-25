@@ -21,6 +21,7 @@ class BookmarkController extends AbstractController
   private $bookmarkDataRetriever;
 
   private $bookmarkService;
+
   private $tagService;
 
   private $logger;
@@ -50,14 +51,12 @@ class BookmarkController extends AbstractController
   private function getTagNameListFromRequest(Request $request)
   {
     $tagNameList = json_decode($request->getContent())->tagNameList;
-    $this->logger->info('tag name list: ', $tagNameList);
     return json_decode($request->getContent())->tagNameList;
   }
 
   private function getTagListFromTagNameList(array $tagNameList)
   {
     $tagList = $this->tagService->getTagListByName($tagNameList);
-    $this->logger->info('tag list: ', $tagNameList);
     return $tagList;
   }
 
@@ -105,6 +104,7 @@ class BookmarkController extends AbstractController
         )
       );
     } catch (Exception $e) {
+      $this->logger->error('Error in BookmarkController::getList: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
     }
   }
@@ -154,7 +154,7 @@ class BookmarkController extends AbstractController
       );
 
     } catch (Exception $e) {
-      $this->logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
+      $this->logger->error('Error in BookmarkController::getById: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
     }
   }
