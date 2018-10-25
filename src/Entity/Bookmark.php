@@ -143,6 +143,7 @@ class Bookmark
     return $this;
   }
 
+
   public function setTagList(array $tagList)
   {
     $this->getTags()->clear();
