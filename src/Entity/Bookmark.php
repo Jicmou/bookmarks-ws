@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -57,6 +59,16 @@ class Bookmark
    */
   private $width;
 
+  /**
+   * @ORM\ManyToMany(targetEntity="App\Entity\Tag", mappedBy="bookmarks")
+   */
+  private $tags;
+
+  public function __construct()
+  {
+    $this->tags = new ArrayCollection();
+  }
+
   public function create(array $args)
   {
     $this->authorName = $args['authorName'];
@@ -78,8 +90,8 @@ class Bookmark
   public function getProperties()
   {
     return array(
-      'creationDate' => $this->creationDate->format('c'),
       'authorName' => $this->authorName,
+      'creationDate' => $this->creationDate->format('c'),
       'duration' => $this->duration,
       'height' => $this->height,
       'id' => $this->id,
@@ -88,6 +100,34 @@ class Bookmark
       'url' => $this->url,
       'width' => $this->width,
     );
+  }
+
+  /**
+   * @return Collection|Tag[]
+   */
+  public function getTags() : Collection
+  {
+    return $this->tags;
+  }
+
+  public function addTag(Tag $tag) : self
+  {
+    if (!$this->tags->contains($tag)) {
+      $this->tags[] = $tag;
+      $tag->addBookmark($this);
+    }
+
+    return $this;
+  }
+
+  public function removeTag(Tag $tag) : self
+  {
+    if ($this->tags->contains($tag)) {
+      $this->tags->removeElement($tag);
+      $tag->removeBookmark($this);
+    }
+
+    return $this;
   }
 
 }
