@@ -57,6 +57,15 @@ class Tag
         return $this->endPoint . $this->getId();
     }
 
+    public function getProperties()
+    {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+        );
+
+    }
+
     /**
      * @return Collection|Bookmark[]
      */
