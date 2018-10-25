@@ -89,7 +89,7 @@ class BookmarkController extends AbstractController
     try {
 
       if (!$this->isCreateRequestValid($request)) {
-        return $this->getRequestErrorResponse('invalid url');
+        return $this->jsonResponse->getRequestErrorResponse('invalid url');
       }
       $bookmarkData = $this->bookmarkDataRetriever->retrieveBookmarkDataFromUrl(
         $this->getUrlFromRequest($request)
