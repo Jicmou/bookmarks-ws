@@ -26,7 +26,7 @@ class BookmarkController extends AbstractController
 
   private $logger;
 
-  private $validUrl = '/^(http(s)?:\/\/(www.)?(vimeo|flickr).com\/)/';
+  private $validUrl = '(http(s)?:\/\/(www.)?((vimeo|flickr).com|flic.kr)\/)';
 
   public function __construct(
     JSONResponse $jsonResponse,
