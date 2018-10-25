@@ -4,6 +4,7 @@ namespace App\Tests\Entity;
 
 use PHPUnit\Framework\TestCase;
 use App\Entity\Bookmark;
+use App\Entity\Tag;
 
 class BookmarkTest extends TestCase
 {
@@ -25,6 +26,13 @@ class BookmarkTest extends TestCase
     return $bookmark;
   }
 
+  private function createTag(string $name)
+  {
+    $tag = new Tag();
+    $tag->setName($name);
+    return $tag;
+  }
+
   public function testCreate()
   {
     $bookmark = $this->createMockBookmark($this->mockProperties);
@@ -35,6 +43,14 @@ class BookmarkTest extends TestCase
     $this->assertEquals($this->mockProperties['type'], $bookmark->getProperties()['type'], 'SHOULD create Object with right type');
     $this->assertEquals($this->mockProperties['url'], $bookmark->getProperties()['url'], 'SHOULD create Object with right url');
     $this->assertEquals($this->mockProperties['width'], $bookmark->getProperties()['width'], 'SHOULD create Object with right width');
+  }
+
+  public function testGetProperties()
+  {
+    $bookmark = $this->createMockBookmark($this->mockProperties);
+    $tagFoo = $this->createTag('foo');
+    $bookmark->addTag($tagFoo);
+    $this->assertEquals($tagFoo->getEndpointFromTag(), $bookmark->getProperties()['tags'][0], 'SHOULD return a list of related tag endpoints');
   }
 
 }
