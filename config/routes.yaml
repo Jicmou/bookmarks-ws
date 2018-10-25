@@ -36,3 +36,10 @@ update_bookmark:
   methods: [PUT]
   defaults:
     _format: json
+
+get_tag_list:
+  path: /v1/tags
+  controller: App\Controller\TagController::getList
+  methods: [GET]
+  defaults:
+    _format: json
