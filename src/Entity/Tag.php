@@ -28,37 +28,45 @@ class Tag
      */
     private $bookmarks;
 
+    private $endPoint;
+
     public function __construct()
     {
         $this->bookmarks = new ArrayCollection();
+        $this->endPoint = '/v1/tags/';
     }
 
-    public function getId(): ?int
+    public function getId() : ? int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName() : ? string
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name) : self
     {
         $this->name = $name;
 
         return $this;
     }
 
+    public function getEndpointFromTag()
+    {
+        return $this->endPoint . $this->getId();
+    }
+
     /**
      * @return Collection|Bookmark[]
      */
-    public function getBookmarks(): Collection
+    public function getBookmarks() : Collection
     {
         return $this->bookmarks;
     }
 
-    public function addBookmark(Bookmark $bookmark): self
+    public function addBookmark(Bookmark $bookmark) : self
     {
         if (!$this->bookmarks->contains($bookmark)) {
             $this->bookmarks[] = $bookmark;
@@ -67,7 +75,7 @@ class Tag
         return $this;
     }
 
-    public function removeBookmark(Bookmark $bookmark): self
+    public function removeBookmark(Bookmark $bookmark) : self
     {
         if ($this->bookmarks->contains($bookmark)) {
             $this->bookmarks->removeElement($bookmark);

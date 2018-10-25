@@ -95,11 +95,19 @@ class Bookmark
       'duration' => $this->duration,
       'height' => $this->height,
       'id' => $this->id,
+      'tags' => $this->getEndpointListFromTags(),
       'title' => $this->title,
       'type' => $this->type,
       'url' => $this->url,
       'width' => $this->width,
     );
+  }
+
+  public function getEndpointListFromTags()
+  {
+    return array_map(function (Tag $tag) {
+      return $tag->getEndpointFromTag();
+    }, $this->getTagsInArray());
   }
 
   /**
@@ -118,6 +126,11 @@ class Bookmark
     }
 
     return $this;
+  }
+
+  public function getTagsInArray()
+  {
+    return $this->getTags()->getValues();
   }
 
   public function removeTag(Tag $tag) : self
