@@ -28,6 +28,7 @@ class Tag
      */
     private $bookmarks;
 
+
     private $endPoint = '/v1/tags/';
 
     public function __construct()
