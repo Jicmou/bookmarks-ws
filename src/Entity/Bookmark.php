@@ -130,7 +130,7 @@ class Bookmark
 
   public function getTagsInArray()
   {
-    return $this->getTags()->getValues();
+    return $this->getTags()->toArray();
   }
 
   public function removeTag(Tag $tag) : self
@@ -141,6 +141,15 @@ class Bookmark
     }
 
     return $this;
+  }
+
+
+  public function setTagList(array $tagList)
+  {
+    $this->getTags()->clear();
+    array_map(function ($tag) {
+      return $this->addTag($tag);
+    }, $tagList);
   }
 
 }

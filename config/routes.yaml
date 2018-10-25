@@ -29,3 +29,10 @@ delete_bookmark:
   methods: [DELETE]
   defaults:
     _format: json
+
+update_bookmark:
+  path: /v1/bookmarks/{bookmarkId}
+  controller: App\Controller\BookmarkController::updateTagList
+  methods: [PUT]
+  defaults:
+    _format: json

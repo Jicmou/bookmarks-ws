@@ -28,12 +28,12 @@ class Tag
      */
     private $bookmarks;
 
-    private $endPoint;
+
+    private $endPoint = '/v1/tags/';
 
     public function __construct()
     {
         $this->bookmarks = new ArrayCollection();
-        $this->endPoint = '/v1/tags/';
     }
 
     public function getId() : ? int

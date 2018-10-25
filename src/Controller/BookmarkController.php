@@ -11,6 +11,7 @@ use App\Entity\Bookmark;
 use App\Service\BookmarkDataRetriever;
 use App\Service\BookmarkService;
 use App\Service\JSONResponse;
+use App\Service\TagService;
 
 class BookmarkController extends AbstractController
 {
@@ -20,6 +21,7 @@ class BookmarkController extends AbstractController
   private $bookmarkDataRetriever;
 
   private $bookmarkService;
+  private $tagService;
 
   private $logger;
 
@@ -29,18 +31,41 @@ class BookmarkController extends AbstractController
     JSONResponse $jsonResponse,
     BookmarkDataRetriever $bookmarkDataRetriever,
     BookmarkService $bookmarkService,
-    LoggerInterface $logger
+    LoggerInterface $logger,
+    TagService $tagService
   ) {
     $this->jsonResponse = $jsonResponse;
     $this->bookmarkDataRetriever = $bookmarkDataRetriever;
     $this->bookmarkService = $bookmarkService;
     $this->logger = $logger;
+    $this->tagService = $tagService;
 
   }
 
   private function getUrlFromRequest(Request $request)
   {
     return json_decode($request->getContent())->url;
+  }
+
+  private function getTagNameListFromRequest(Request $request)
+  {
+    $tagNameList = json_decode($request->getContent())->tagNameList;
+    $this->logger->info('tag name list: ', $tagNameList);
+    return json_decode($request->getContent())->tagNameList;
+  }
+
+  private function getTagListFromTagNameList(array $tagNameList)
+  {
+    $tagList = $this->tagService->getTagListByName($tagNameList);
+    $this->logger->info('tag list: ', $tagNameList);
+    return $tagList;
+  }
+
+  private function getTagListFromRequest(Request $request)
+  {
+    return $this->getTagListFromTagNameList(
+      $this->getTagNameListFromRequest($request)
+    );
   }
 
   private function isUrlValid(string $url)
@@ -106,7 +131,7 @@ class BookmarkController extends AbstractController
       );
 
     } catch (Exception $e) {
-      $logger->error('Error in BookmarkController::create: ' . $e->getMessage());
+      $this->logger->error('Error in BookmarkController::create: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
     }
   }
@@ -129,7 +154,7 @@ class BookmarkController extends AbstractController
       );
 
     } catch (Exception $e) {
-      $logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
+      $this->logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
     }
   }
@@ -149,8 +174,44 @@ class BookmarkController extends AbstractController
       return $this->jsonResponse->getNoContentResponse();
 
     } catch (Exception $e) {
-      $logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
+      $this->logger->error('Error in BookmarkController::delete: ' . $e->getMessage());
       return $this->jsonResponse->getInternalErrorResponse($e);
     }
   }
+
+  public function updateTagList(Request $request, $bookmarkId)
+  {
+    try {
+
+      $bookmark = $this->bookmarkService->getBookmarkById(
+        $bookmarkId
+      );
+
+      if (!$bookmark) {
+        return $this->jsonResponse->getNotFoundErrorResponse();
+      }
+
+      $tagList = $this->getTagListFromRequest($request);
+      $this->logger->info('tag List: ', $tagList);
+      $bookmark->setTagList($tagList);
+
+      $this->bookmarkService->saveBookmark($bookmark);
+      array_map(function ($tag) {
+        return $this->tagService->saveTag($tag);
+      }, $tagList);
+
+      return $this->jsonResponse->getSuccessResponse(
+        json_encode(
+          array(
+            'bookmark' => $bookmark->getProperties()
+          )
+        )
+      );
+    } catch (Exception $e) {
+      $this->logger->error('Error in BookmarkController::updateTags: ' . $e->getMessage());
+      return $this->jsonResponse->getInternalErrorResponse($e);
+    }
+  }
+
+
 }
