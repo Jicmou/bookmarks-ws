@@ -43,3 +43,10 @@ get_tag_list:
   methods: [GET]
   defaults:
     _format: json
+
+get_get_tag_list_by_id:
+  path: /v1/tags/{tagId}
+  controller: App\Controller\TagController::getById
+  methods: [GET]
+  defaults:
+    _format: json

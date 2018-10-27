@@ -54,4 +54,26 @@ class TagController extends AbstractController
     }
   }
 
+  public function getById($tagId)
+  {
+    try {
+      $tag = $this->tagService->getTagById(
+        $tagId
+      );
+      if (!$tag) {
+        return $this->jsonResponse->getNotFoundErrorResponse();
+      }
+      return $this->jsonResponse->getSuccessResponse(
+        json_encode(
+          array(
+            'tag' => $tag->getProperties()
+          )
+        )
+      );
+
+    } catch (Exception $e) {
+      $this->logger->error('Error in TagController::getById: ' . $e->getMessage());
+      return $this->jsonResponse->getInternalErrorResponse($e);
+    }
+  }
 }

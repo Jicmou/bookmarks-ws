@@ -21,6 +21,11 @@ class TagService extends AbstractController
     return $this->getDoctrine()->getRepository(Tag::class)->findAll();
   }
 
+  public function getTagById($tagId)
+  {
+    return $this->getDoctrine()->getRepository(Tag::class)->find($tagId);
+  }
+
   public function getTagByName(string $tagName)
   {
     $tag = $this->getDoctrine()->getRepository(Tag::class)->findOneBy(['name' => $tagName]);
