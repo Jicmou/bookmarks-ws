@@ -146,7 +146,10 @@ class Bookmark
 
   public function setTagList(array $tagList)
   {
-    $this->getTags()->clear();
+    $oldTagList = $this->getTagsInArray();
+    array_map(function ($tag) {
+      return $this->removeTag($tag);
+    }, $oldTagList);
     array_map(function ($tag) {
       return $this->addTag($tag);
     }, $tagList);
